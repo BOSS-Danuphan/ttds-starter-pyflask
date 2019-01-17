@@ -8,6 +8,9 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = os.environ.get('SECRET_KEY', 'This-is-secret!#$')
+    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    DATETIME_FORMAT = os.environ.get('DATETIME_FORMAT', "%Y-%m-%d %H:%M:%S")
 
 class ProductionConfig(Config):
     DEBUG = False

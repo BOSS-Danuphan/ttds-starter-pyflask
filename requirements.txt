@@ -3,3 +3,7 @@ flask_socketio
 gunicorn
 python-dotenv
 eventlet
+
+flask-sqlalchemy
+flask-migrate
+flask-script

@@ -4,7 +4,7 @@
     {% set links = ['readfile', 'appendfile', 'deletefile',
                     'displayglobvar', 'reloadglobvar',
                     'ws',
-                    'readdb',
+                    'readdbprofile', 'updatedbprofile',
                     'taskstatus'] %}
     {% for link in links %}
     <li><a href="{{ url_for(link) }}">{{ link }}</a></li>

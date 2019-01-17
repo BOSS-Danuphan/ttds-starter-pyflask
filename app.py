@@ -1,6 +1,7 @@
 import os
 from config import Config
 from flask import Flask, render_template, redirect, jsonify
+from models import db, Profile
 
 from flask_socketio import SocketIO, emit
 import eventlet
@@ -8,6 +9,9 @@ eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('APP_SETTINGS', 'config.ProductionConfig'))
+
+app.app_context().push()
+db.init_app(app)
 
 indexpath = 'myindex.txt'
 def loadsearchindex():
@@ -120,9 +124,18 @@ def reloadglobvar():
 def ws():
     return render_template('websocket.html')
 
-@app.route('/readdb')
-def readdb():
-    return render_template('article.html', content='Not connected')
+@app.route('/readdbprofile')
+def readdbprofile():
+    profile = Profile.query.first()
+    return render_template('article.html', content=f"{profile}")
+
+@app.route('/updatedbprofile')
+def updatedbprofile():
+    from random import randint
+    profile = Profile.query.get(1)
+    profile.name = 'default' + str(randint(0, 9))
+    db.session.commit()
+    return jsonify({'status': 'ok'})
 
 @app.route('/task')
 def taskstatus():
