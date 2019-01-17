@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content -%}
+<main style="display:flex">
+    <section id="ws-feed" style="border: 1px red solid"></section>
+    <section id="ws-log" style="border: 1px black solid"></section>
+</main>
+{%- endblock content %}
+
+{% block bodyscript -%}
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script type="text/javascript" src="static/js/websocket.js"></script>
+{%- endblock bodyscript %}

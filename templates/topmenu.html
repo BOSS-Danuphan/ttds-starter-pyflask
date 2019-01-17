@@ -1,0 +1,13 @@
+<nav>
+  <ul>
+    <li><a href="/">Home</a></li>
+    {% set links = ['readfile', 'appendfile', 'deletefile',
+                    'displayglobvar', 'reloadglobvar',
+                    'ws',
+                    'readdb',
+                    'taskstatus'] %}
+    {% for link in links %}
+    <li><a href="{{ url_for(link) }}">{{ link }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>
