@@ -7,3 +7,4 @@ eventlet
 flask-sqlalchemy
 flask-migrate
 flask-script
+psycopg2
