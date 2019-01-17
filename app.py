@@ -139,7 +139,7 @@ def updatedbprofile():
 
 @app.route('/task')
 def taskstatus():
-    return render_template('article.html', content='No runnong task !!')
+    return render_template('article.html', content='No running task !!')
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio
