@@ -7,7 +7,7 @@ import eventlet
 eventlet.monkey_patch()
 
 app = Flask(__name__)
-app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(os.environ.get('APP_SETTINGS', 'config.ProductionConfig'))
 
 indexpath = 'myindex.txt'
 def loadsearchindex():
@@ -130,4 +130,4 @@ def taskstatus():
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio
-    socketio.run(app, debug=True, port=5000)
+    socketio.run(app, port=5000)
