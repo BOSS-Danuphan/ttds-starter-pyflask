@@ -1,5 +1,5 @@
 $( document ).ready(function() {
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    var socket = io.connect('//' + document.domain + ':' + location.port);
     socket.on('message', function(data){
         $('#ws-log').append('<p>'+data.data+'</p>');
     });
