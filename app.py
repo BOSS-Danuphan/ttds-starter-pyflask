@@ -121,7 +121,7 @@ def reloadglobvar():
     return jsonify({'status': 'ok'})
 
 @app.route('/websocket')
-def ws():
+def websocket():
     return render_template('websocket.html')
 
 @app.route('/readdbprofile')
