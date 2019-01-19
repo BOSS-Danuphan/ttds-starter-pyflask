@@ -140,8 +140,10 @@ def updatedbprofile():
 @app.route('/schedulerlog')
 def schedulerlog():
     mytext = None
-    with open('scheduler-log.txt', 'r') as f:
-        mytext = f.read()
+
+    if os.path.exists(indexpath):
+        with open('scheduler-log.txt', 'r') as f:
+            mytext = f.read()
     return render_template('article.html', content= mytext or 'No running task !!')
 
 if __name__ == '__main__':
