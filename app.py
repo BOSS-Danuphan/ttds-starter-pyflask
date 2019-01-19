@@ -143,12 +143,9 @@ def schedulerlog():
     logfile = 'schedulerlog.txt'
 
     if os.path.exists(logfile):
-        print('file exists')
         with open(logfile, 'r') as f:
-            print('file opened')
             mytext = f.read()
-            print('file content', mytext)
-    return render_template('article.html', content=mytext)
+    return render_template('article.html', content=mytext or 'No running task !!')
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio
