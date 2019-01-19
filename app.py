@@ -137,9 +137,12 @@ def updatedbprofile():
     db.session.commit()
     return jsonify({'status': 'ok'})
 
-@app.route('/task')
-def taskstatus():
-    return render_template('article.html', content='No running task !!')
+@app.route('/schedulerlog')
+def schedulerlog():
+    mytext = None
+    with open('scheduler-log.txt', 'r') as f:
+        mytext = f.read()
+    return render_template('article.html', content= mytext or 'No running task !!')
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio
