@@ -140,12 +140,15 @@ def updatedbprofile():
 @app.route('/schedulerlog')
 def schedulerlog():
     mytext = None
-    logfile = 'scheduler-log.txt'
+    logfile = 'schedulerlog.txt'
 
     if os.path.exists(logfile):
+        print('file exists')
         with open(logfile, 'r') as f:
+            print('file opened')
             mytext = f.read()
-    return render_template('article.html', content= mytext or 'No running task !!')
+            print('file content', mytext)
+    return render_template('article.html', content=mytext)
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio
