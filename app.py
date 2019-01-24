@@ -1,17 +1,18 @@
+import eventlet
+eventlet.monkey_patch()
 import os
 from config import Config
 from flask import Flask, render_template, redirect, jsonify
 from models import db, Profile
 
 from flask_socketio import SocketIO, emit
-import eventlet
-eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config.from_object(os.environ.get('APP_SETTINGS', 'config.ProductionConfig'))
 
 app.app_context().push()
 db.init_app(app)
+socketio = SocketIO(app, async_mode='eventlet')
 
 indexpath = 'myindex.txt'
 def loadsearchindex():
@@ -26,58 +27,79 @@ def loadsearchindex():
 globvar = loadsearchindex()
 
 ###########################
+#         Twitter         #
+###########################
+from threading import Thread
+from tweepy import StreamListener, Stream
+import tweepy
+import json
+
+thread = None
+auth = tweepy.OAuthHandler(app.config.get('TWEEPY_CONSUMER_KEY'), app.config.get('TWEEPY_CONSUMER_SECRET'))
+auth.set_access_token(app.config.get('TWEEPY_ACCESS_TOKEN_KEY'), app.config.get('TWEEPY_ACCESS_TOKEN_SECRET'))
+
+def do_whatever_processing_you_want(text):
+    return text.startswith("RT "), text
+
+class StdOutListener(StreamListener):
+    def __init__(self):
+        pass
+
+    def on_data(self, data):
+        print(data)
+        try:
+            tweet = json.loads(data)
+            flag, text = do_whatever_processing_you_want(tweet['text'])
+            if flag:
+                socketio.emit('stream_channel',
+                        {'data': text, 'id': tweet['id']},
+                        namespace='/demo_streaming')
+            print(text)
+        except Exception as e:
+            print('Failed: '+ str(e))
+
+    def on_error(self, status):
+        print('Error status code', status)
+        exit()
+
+def background_thread():
+    """Example of how to send server generated events to clients."""
+    stream = Stream(auth, l)
+    _keywords = [':-)', ':-(']
+    print('mythread')
+    stream.sample()
+
+###########################
 #        Web Socket       #
 ###########################
-connectionCounter = 0
-socketio = SocketIO(app, async_mode='eventlet')
+# connectionCounter = 0
+# @socketio.on('connect')
+# def wsioconnect():
+#     print('connected')
+#     socketio.emit('message', {'data': 'Connected'})
+#     socketio.sleep(1)
+#     emit('message', {'data': 'Connected by new client'}, broadcast=True, include_self=False)
+#     socketio.sleep(10)
+#     emit('message', {'data': 'Connected again !!'})
 
-class Worker(object):
+#     global connectionCounter, worker
+#     connectionCounter += 1
+#     if worker.switch == False:
+#         print('start background')
+#         worker.start()
+#         socketio.start_background_task(target=worker.do_work)
+# @socketio.on('disconnect')
+# def wsiodisconnect():
+#     print('disconnected')
+#     emit('message', {'data': 'Client disconnected'}, broadcast=True, include_self=False)
 
-    switch = False
-    unit_of_work = 0
-
-    def __init__(self, socketio):
-        self.socketio = socketio
-
-    def do_work(self):
-        while self.switch:
-            self.unit_of_work += 1
-            self.socketio.emit("feed", {"data": self.unit_of_work})
-            eventlet.sleep(3)
-
-    def stop(self):
-        self.switch = False
-
-    def start(self):
-        self.switch = True
-
-global worker
-worker = Worker(socketio)
-
-@socketio.on('connect')
-def wsioconnect():
-    print('connected')
-    emit('message', {'data': 'Connected'})
-    emit('message', {'data': 'Connected by new client'}, broadcast=True, include_self=False)
-
-    global connectionCounter, worker
-    connectionCounter += 1
-    if worker.switch == False:
-        print('start background')
-        worker.start()
-        socketio.start_background_task(target=worker.do_work)
-@socketio.on('disconnect')
-def wsiodisconnect():
-    print('disconnected')
-    emit('message', {'data': 'Client disconnected'}, broadcast=True, include_self=False)
-
-    global connectionCounter
-    connectionCounter -= 1
-    if connectionCounter == 0 and worker.switch == True:
-        worker.stop()
-@socketio.on('broadcast')
-def wsiobroadcast(data):
-    emit('message', {'data': data})
+#     global connectionCounter
+#     connectionCounter -= 1
+#     if connectionCounter == 0 and worker.switch == True:
+#         worker.stop()
+# @socketio.on('broadcast')
+# def wsiobroadcast(data):
+#     emit('message', {'data': data})
 
 ###########################
 #        Web Route        #
@@ -124,6 +146,17 @@ def reloadglobvar():
 def websocket():
     return render_template('websocket.html')
 
+@app.route('/tweetstream')
+def tweetstream():
+    global thread
+    print(thread)
+    if thread is None:
+        print('start mythread')
+        thread = Thread(target=background_thread)
+        thread.daemon = True
+        thread.start()
+    return render_template('tweetstream.html')
+
 @app.route('/readdbprofile')
 def readdbprofile():
     profile = Profile.query.first()
@@ -146,6 +179,8 @@ def schedulerlog():
         with open(logfile, 'r') as f:
             mytext = f.read()
     return render_template('article.html', content=mytext or 'No running task !!')
+
+l = StdOutListener()
 
 if __name__ == '__main__':
     # app.run(debug = True) # Without socketio

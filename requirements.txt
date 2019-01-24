@@ -10,3 +10,5 @@ flask-script
 psycopg2
 
 apscheduler
+
+tweepy
